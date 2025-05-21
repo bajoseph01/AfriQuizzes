@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="af">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graad 6 Taalvaardighede Toets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff; /* Tailwind blue-50 */
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 1rem; /* Tailwind rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+        }
+
+        .option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: #3b82f6; /* Tailwind blue-500 */
+            background-color: #eff6ff; /* Tailwind blue-100 */
+        }
+
+        .option.correct {
+            border-color: #10b981; /* Tailwind green-500 */
+            background-color: #d1fae5; /* Tailwind green-100 */
+        }
+
+        .option.incorrect {
+            border-color: #f44444; /* Tailwind red-500 */
+            background-color: #fee2e2; /* Tailwind red-100 */
+        }
+
+        .progress-bar {
+            height: 8px;
+            transition: width 0.5s ease;
+        }
+
+        .result-card {
+            transition: all 0.5s ease;
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        .result-card.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease;
+        }
+    </style>
+</head>
+
+<body class="py-8 px-4">
+    <div class="quiz-container p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-700 mb-2">Graad 6 Taalvaardighede Toets</h1>
+            <p class="text-gray-600">Toets jou kennis oor soorte sinne, afkortings en intensiewe vorm!</p>
+        </div>
+
+        <div id="progress-container" class="mb-6">
+            <div class="flex justify-between mb-1">
+                <span id="question-number" class="text-sm font-medium text-blue-700">Vraag 1 van 21</span>
+                <span id="score-display" class="text-sm font-medium text-green-600">Punte: 0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-600 rounded-full" style="width: 4.76%"></div>
+            </div>
+        </div>
+
+        <div id="quiz-content" class="mb-8">
+            <!-- Questions will be inserted here by JavaScript -->
+        </div>
+
+        <div id="controls" class="flex justify-between">
+            <button id="prev-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">Vorige</button>
+            <button id="next-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Volgende</button>
+        </div>
+
+        <div id="results" class="hidden">
+            <div class="result-card bg-white rounded-xl p-6 shadow-lg border-2 border-blue-500">
+                <div class="text-center mb-6">
+                    <div id="score-emoji" class="text-5xl mb-2">🎉</div>
+                    <h2 class="text-2xl font-bold text-blue-700 mb-1">Toets Voltooi!</h2>
+                    <p class="text-gray-600">Hier is jou uitslag:</p>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">Finale Punte:</span>
+                        <span id="final-score" class="font-bold text-blue-700">0/21</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                        <div id="score-bar" class="bg-green-500 rounded-full h-4" style="width: 0%;"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>0%</span>
+                        <span id="percentage">0%</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-100 p-4 rounded-lg text-center">
+                        <h3 class="font-medium text-blue-800 mb-1">Soorte Sinne</h3>
+                        <p id="section1-score" class="font-bold text-lg">0/5</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-lg text-center">
+                        <h3 class="font-medium text-purple-800 mb-1">Afkortings</h3>
+                        <p id="section2-score" class="font-bold text-lg">0/5</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-lg text-center">
+                        <h3 class="font-medium text-green-800 mb-1">Intensiewe Vorm</h3>
+                        <p id="section3-score" class="font-bold text-lg">0/11</p>
+                    </div>
+                </div>
+
+                <div id="feedback" class="text-center mb-6">
+                    <p class="text-lg font-medium text-gray-700">Goeie poging! Hou aan oefen om te verbeter.</p>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="restart-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Herbegin Toets</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Quiz questions
+            const quizQuestions = [
+                // Soorte Sinne (Types of Sentences)
+                {
+                    section: "soorte-sinne",
+                    question: "Watter tipe sin is: 'Ek hou van lees.'?",
+                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
+                    answer: 0,
+                    explanation: "Dit is 'n stelsin omdat dit 'n stelling maak."
+                },
+                {
+                    section: "soorte-sinne",
+                    question: "Identifiseer die tipe sin: 'Gee vir my die boek!'",
+                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
+                    answer: 2,
+                    explanation: "Dit is 'n bevelsin omdat dit 'n opdrag gee."
+                },
+                {
+                    section: "soorte-sinne",
+                    question: "Watter tipe sin is: 'Wat 'n pragtige dag!'?",
+                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
+                    answer: 3,
+                    explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk."
+                },
+                {
+                    section: "soorte-sinne",
+                    question: "Identifiseer die tipe sin: 'Wanneer gaan ons skool toe?'",
+                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
+                    answer: 1,
+                    explanation: "Dit is 'n vraagsin omdat dit 'n vraag vra."
+                },
+                {
+                    section: "soorte-sinne",
+                    question: "Watter tipe sin is: 'Sjoe, dit was 'n moeilike toets!'?",
+                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
+                    answer: 3,
+                    explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk."
+                },
+
+                // Afkortings (Abbreviations)
+                {
+                    section: "afkortings",
+                    question: "Wat is die korrekte afkorting vir 'Meneer'?",
+                    options: ["Mr.", "Mnr.", "Men.", "M."],
+                    answer: 1,
+                    explanation: "Die korrekte afkorting vir 'Meneer' is 'Mnr.'."
+                },
+                {
+                    section: "afkortings",
+                    question: "Wat is die korrekte afkorting vir 'byvoorbeeld'?",
+                    options: ["bv.", "b.v.", "byv.", "bvb."],
+                    answer: 0,
+                    explanation: "Die korrekte afkorting vir 'byvoorbeeld' is 'bv.'."
+                },
+                {
+                    section: "afkortings",
+                    question: "Wat is die korrekte afkorting vir 'onder andere'?",
+                    options: ["o.a.", "oa.", "ond.", "o/a"],
+                    answer: 0,
+                    explanation: "Die korrekte afkorting vir 'onder andere' is 'o.a.'."
+                },
+                {
+                    section: "afkortings",
+                    question: "Wat is die korrekte afkorting vir 'Doktor'?",
+                    options: ["DK.", "Dr.", "Dkt.", "Dok."],
+                    answer: 1,
+                    explanation: "Die korrekte afkorting vir 'Doktor' is 'Dr.'."
+                },
+                {
+                    section: "afkortings",
+                    question: "Wat is die korrekte afkorting vir 'ensovoorts'?",
+                    options: ["ens.", "env.", "esv.", "e.s."],
+                    answer: 0,
+                    explanation: "Die korrekte afkorting vir 'ensovoorts' is 'ens.'."
+                },
+
+                // Intensiewe Vorm (Intensive Form)
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'nuut'?",
+                    options: ["Splinternuut", "Baie nuut", "Nuwer", "Nuutste"],
+                    answer: 0,
+                    explanation: "Die intensiewe vorm van 'nuut' is 'splinternuut'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'dood'?",
+                    options: ["Baie dood", "Morsdood", "Dodend", "Dodelik"],
+                    answer: 1,
+                    explanation: "Die intensiewe vorm van 'dood' is 'morsdood'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'alleen'?",
+                    options: ["Baie alleen", "Alleenste", "Moedersielalleen", "Alleenlik"],
+                    answer: 2,
+                    explanation: "Die intensiewe vorm van 'alleen' is 'moedersielalleen'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'oud'?",
+                    options: ["Baie oud", "Oudste", "Stokoud", "Ouerig"],
+                    answer: 2,
+                    explanation: "Die intensiewe vorm van 'oud' is 'stokoud'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'leeg'?",
+                    options: ["Dolleg", "Baie leeg", "Leegste", "Uitgeleedig"],
+                    answer: 0,
+                    explanation: "Die intensiewe vorm van 'leeg' is 'dolleg'."
+                },
+                // New Intensiewe vorm questions
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'droog'?",
+                    options: ["Baie droog", "Kurkdroog", "Droër", "Uitgedroog"],
+                    answer: 1,
+                    explanation: "Die intensiewe vorm van 'droog' is 'kurkdroog'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'swart'?",
+                    options: ["Donkerswart", "Swarter", "Pikswart", "Koolswart"],
+                    answer: 2,
+                    explanation: "Die intensiewe vorm van 'swart' is 'pikswart'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'wit'?",
+                    options: ["Spierwit", "Baie wit", "Witter", "Melkwit"],
+                    answer: 0,
+                    explanation: "Die intensiewe vorm van 'wit' is 'spierwit'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'vet'?",
+                    options: ["Baie vet", "Vetter", "Oorvet", "Spekvet"],
+                    answer: 3,
+                    explanation: "Die intensiewe vorm van 'vet' is 'spekvet'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'rooi'?",
+                    options: ["Bloedrooi", "Baie rooi", "Rooier", "Helderrooi"],
+                    answer: 0,
+                    explanation: "Die intensiewe vorm van 'rooi' is 'bloedrooi'."
+                },
+                {
+                    section: "intensiewe-vorm",
+                    question: "Wat is die intensiewe vorm van 'blou'?",
+                    options: ["Donkerblou", "Potblou", "Blouer", "Hemelblou"],
+                    answer: 1,
+                    explanation: "Die intensiewe vorm van 'blou' is 'potblou'."
+                }
+            ];
+
+            // Quiz state
+            let currentQuestion = 0;
+            let score = 0;
+            let answered = Array(quizQuestions.length).fill(false);
+            let sectionScores = {
+                "soorte-sinne": 0,
+                "afkortings": 0,
+                "intensiewe-vorm": 0
+            };
+
+            // DOM elements
+            const quizContent = document.getElementById('quiz-content');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const questionNumber = document.getElementById('question-number');
+            const scoreDisplay = document.getElementById('score-display');
+            const progressBar = document.getElementById('progress-bar');
+            const resultsSection = document.getElementById('results');
+            const resultCard = document.querySelector('.result-card');
+            const finalScore = document.getElementById('final-score');
+            const scoreBar = document.getElementById('score-bar');
+            const percentageDisplay = document.getElementById('percentage');
+            const section1Score = document.getElementById('section1-score');
+            const section2Score = document.getElementById('section2-score');
+            const section3Score = document.getElementById('section3-score');
+            const feedbackElement = document.getElementById('feedback');
+            const restartBtn = document.getElementById('restart-btn');
+            const scoreEmoji = document.getElementById('score-emoji');
+
+
+            // Initialize quiz
+            function initQuiz() {
+                showQuestion(currentQuestion);
+                updateProgressBar();
+            }
+
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', handleNextButton);
+            restartBtn.addEventListener('click', restartQuiz);
+
+            // Show current question
+            function showQuestion(index) {
+                const question = quizQuestions[index];
+                // Update question number display
+                questionNumber.textContent = `Vraag ${index + 1} van ${quizQuestions.length}`;
+
+                // Create question HTML
+                let html = `<div class="mb-6">
+                                <h2 class="text-xl font-semibold mb-4">${question.question}</h2>
+                                <div class="space-y-3">`;
+
+                // Add options
+                question.options.forEach((option, i) => {
+                    const selectedClass = answered[index] && document.querySelector(`.option[data-index="${i}"]`)?.classList.contains('selected') ? 'selected' : '';
+                    const correctClass = answered[index] && i === question.answer ? 'correct' : '';
+                    const incorrectClass = answered[index] && document.querySelector(`.option[data-index="${i}"]`)?.classList.contains('selected') && i !== question.answer ? 'incorrect' : '';
+
+                    html += `<div class="option ${selectedClass} ${correctClass} ${incorrectClass} flex items-center p-3 border-2 border-gray-200 rounded-lg data-index="${i}">
+                                <span class="option-letter text-sm font-medium mr-3">${String.fromCharCode(65 + i)}</span>
+                                <span class="flex-grow">${option}</span>
+                             </div>`;
+                });
+
+                html += `   </div>
+                          </div>`;
+
+                // Add explanation if question is answered
+                if (answered[index]) {
+                    html += `<div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                <p class="text-blue-800"><strong>Verduideliking:</strong> ${question.explanation}</p>
+                             </div>`;
+                }
+
+                quizContent.innerHTML = html;
+
+                // Add event listeners to options if not answered yet
+                if (!answered[index]) {
+                    document.querySelectorAll('.option').forEach(option => {
+                        option.addEventListener('click', () => selectOption(option));
+                    });
+                }
+                // Update button states
+                prevBtn.disabled = index === 0;
+                nextBtn.textContent = index === quizQuestions.length - 1 ? "Voltooi" : "Volgende";
+            }
+
+            // Handle option selection
+            function selectOption(selectedOption) {
+                if (answered[currentQuestion]) return; // Prevent re-answering
+
+                const selectedIndex = parseInt(selectedOption.dataset.index);
+                const correctIndex = quizQuestions[currentQuestion].answer;
+
+                // Mark as answered
+                answered[currentQuestion] = true;
+
+                // Remove selected class from all options
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                selectedOption.classList.add('selected');
+
+                // Check if answer is correct
+                if (selectedIndex === correctIndex) {
+                    selectedOption.classList.add('correct');
+                    score++;
+                    sectionScores[quizQuestions[currentQuestion].section]++;
+                    // Show celebration animation
+                    selectedOption.classList.add('celebrate');
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    // Show correct answer
+                    document.querySelectorAll('.option')[correctIndex].classList.add('correct');
+                }
+                // Update score display
+                scoreDisplay.textContent = `Punte: ${score}`;
+
+                // Show explanation
+                const explanationHTML = `
+                    <div class="bg-blue-50 p-4 rounded-lg mt-4 mb-4">
+                        <p class="text-blue-800"><strong>Verduideliking:</strong> ${quizQuestions[currentQuestion].explanation}</p>
+                    </div>`;
+                quizContent.insertAdjacentHTML('beforeend', explanationHTML);
+            }
+
+            // Show previous question
+            function showPreviousQuestion() {
+                if (currentQuestion > 0) {
+                    currentQuestion--;
+                    showQuestion(currentQuestion);
+                    updateProgressBar();
+                }
+            }
+
+            // Handle next button click
+            function handleNextButton() {
+                if (currentQuestion < quizQuestions.length - 1) {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                    updateProgressBar();
+                } else {
+                    showResults();
+                }
+            }
+
+            // Update progress bar
+            function updateProgressBar() {
+                const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            // Show results
+            function showResults() {
+                document.getElementById('quiz-content').classList.add('hidden');
+                document.getElementById('controls').classList.add('hidden');
+                document.getElementById('progress-container').classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+
+                // Calculate scores
+                const totalScore = score;
+                const percentage = Math.round((totalScore / quizQuestions.length) * 100);
+
+                // Update result elements
+                finalScore.textContent = `${totalScore}/${quizQuestions.length}`;
+                scoreBar.style.width = `${percentage}%`;
+                percentageDisplay.textContent = `${percentage}%`;
+
+                section1Score.textContent = `${sectionScores["soorte-sinne"]}/5`;
+                section2Score.textContent = `${sectionScores["afkortings"]}/5`;
+                section3Score.textContent = `${sectionScores["intensiewe-vorm"]}/11`; // Updated total for intensiewe vorm
+
+                // Set feedback based on score
+                let feedback = "";
+                let emoji = "";
+
+                if (percentage >= 80) {
+                    feedback = "Uitstekend! Jy het 'n baie goeie begrip van hierdie taalvaardighede.";
+                    emoji = "🥳";
+                } else if (percentage >= 60) {
+                    feedback = "Goed gedoen! Jy verstaan die meeste konsepte, maar daar is nog ruimte vir verbetering.";
+                    emoji = "👍";
+                } else if (percentage >= 40) {
+                    feedback = "Goeie poging! Probeer om meer te oefen om jou begrip te verbeter.";
+                    emoji = "💪";
+                } else {
+                    feedback = "Moenie moed opgee nie! Met meer oefening sal jy verbeter.";
+                    emoji = "📚";
+                }
+                feedbackElement.innerHTML = `<p class="text-lg font-medium text-gray-700">${feedback}</p>`;
+                scoreEmoji.textContent = emoji;
+
+                // Show result card with animation
+                setTimeout(() => {
+                    resultCard.classList.add('show');
+                }, 100);
+            }
+
+            // Restart quiz
+            function restartQuiz() {
+                currentQuestion = 0;
+                score = 0;
+                answered = Array(quizQuestions.length).fill(false);
+                sectionScores = {
+                    "soorte-sinne": 0,
+                    "afkortings": 0,
+                    "intensiewe-vorm": 0
+                };
+
+                scoreDisplay.textContent = `Punte: 0`;
+                resultsSection.classList.add('hidden');
+                document.getElementById('quiz-content').classList.remove('hidden');
+                document.getElementById('controls').classList.remove('hidden');
+                document.getElementById('progress-container').classList.remove('hidden');
+                resultCard.classList.remove('show');
+
+                initQuiz();
+            }
+
+            // Initialize
+            initQuiz();
+        });
+    </script>
+</body>
+</html>
