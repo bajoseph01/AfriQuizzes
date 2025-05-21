@@ -27,24 +27,30 @@
             cursor: pointer;
         }
 
-        .option:hover {
+        .option:not(.selected):not(.correct):not(.incorrect):hover {
             transform: translateY(-2px);
+            border-color: #9ca3af; 
         }
 
         .option.selected {
-            border-color: #3b82f6; /* Tailwind blue-500 */
-            background-color: #eff6ff; /* Tailwind blue-100 */
+            border-color: #3b82f6; 
+            background-color: #eff6ff;
         }
 
         .option.correct {
-            border-color: #10b981; /* Tailwind green-500 */
-            background-color: #d1fae5; /* Tailwind green-100 */
+            border-color: #10b981 !important; 
+            background-color: #d1fae5 !important; 
         }
 
         .option.incorrect {
-            border-color: #f44444; /* Tailwind red-500 */
-            background-color: #fee2e2; /* Tailwind red-100 */
+            border-color: #ef4444 !important; 
+            background-color: #fee2e2 !important;
         }
+        .option.selected.incorrect { 
+             border-color: #ef4444 !important;
+             background-color: #fee2e2 !important;
+        }
+
 
         .progress-bar {
             height: 8px;
@@ -64,7 +70,7 @@
 
         @keyframes celebrate {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
@@ -83,11 +89,11 @@
 
         <div id="progress-container" class="mb-6">
             <div class="flex justify-between mb-1">
-                <span id="question-number" class="text-sm font-medium text-blue-700">Vraag 1 van 21</span>
+                <span id="question-number" class="text-sm font-medium text-blue-700">Vraag 1 van 30</span>
                 <span id="score-display" class="text-sm font-medium text-green-600">Punte: 0</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
-                <div id="progress-bar" class="bg-blue-600 rounded-full" style="width: 4.76%"></div>
+                <div id="progress-bar" class="bg-blue-600 rounded-full" style="width: 0%"></div>
             </div>
         </div>
 
@@ -111,7 +117,7 @@
                 <div class="bg-blue-50 rounded-lg p-4 mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-medium">Finale Punte:</span>
-                        <span id="final-score" class="font-bold text-blue-700">0/21</span>
+                        <span id="final-score" class="font-bold text-blue-700">0/30</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
                         <div id="score-bar" class="bg-green-500 rounded-full h-4" style="width: 0%;"></div>
@@ -133,7 +139,7 @@
                     </div>
                     <div class="bg-green-100 p-4 rounded-lg text-center">
                         <h3 class="font-medium text-green-800 mb-1">Intensiewe Vorm</h3>
-                        <p id="section3-score" class="font-bold text-lg">0/11</p>
+                        <p id="section3-score" class="font-bold text-lg">0/20</p>
                     </div>
                 </div>
 
@@ -150,384 +156,359 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Quiz questions
-            const quizQuestions = [
-                // Soorte Sinne (Types of Sentences)
-                {
-                    section: "soorte-sinne",
-                    question: "Watter tipe sin is: 'Ek hou van lees.'?",
-                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
-                    answer: 0,
-                    explanation: "Dit is 'n stelsin omdat dit 'n stelling maak."
-                },
-                {
-                    section: "soorte-sinne",
-                    question: "Identifiseer die tipe sin: 'Gee vir my die boek!'",
-                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
-                    answer: 2,
-                    explanation: "Dit is 'n bevelsin omdat dit 'n opdrag gee."
-                },
-                {
-                    section: "soorte-sinne",
-                    question: "Watter tipe sin is: 'Wat 'n pragtige dag!'?",
-                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
-                    answer: 3,
-                    explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk."
-                },
-                {
-                    section: "soorte-sinne",
-                    question: "Identifiseer die tipe sin: 'Wanneer gaan ons skool toe?'",
-                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
-                    answer: 1,
-                    explanation: "Dit is 'n vraagsin omdat dit 'n vraag vra."
-                },
-                {
-                    section: "soorte-sinne",
-                    question: "Watter tipe sin is: 'Sjoe, dit was 'n moeilike toets!'?",
-                    options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"],
-                    answer: 3,
-                    explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk."
-                },
-
-                // Afkortings (Abbreviations)
-                {
-                    section: "afkortings",
-                    question: "Wat is die korrekte afkorting vir 'Meneer'?",
-                    options: ["Mr.", "Mnr.", "Men.", "M."],
-                    answer: 1,
-                    explanation: "Die korrekte afkorting vir 'Meneer' is 'Mnr.'."
-                },
-                {
-                    section: "afkortings",
-                    question: "Wat is die korrekte afkorting vir 'byvoorbeeld'?",
-                    options: ["bv.", "b.v.", "byv.", "bvb."],
-                    answer: 0,
-                    explanation: "Die korrekte afkorting vir 'byvoorbeeld' is 'bv.'."
-                },
-                {
-                    section: "afkortings",
-                    question: "Wat is die korrekte afkorting vir 'onder andere'?",
-                    options: ["o.a.", "oa.", "ond.", "o/a"],
-                    answer: 0,
-                    explanation: "Die korrekte afkorting vir 'onder andere' is 'o.a.'."
-                },
-                {
-                    section: "afkortings",
-                    question: "Wat is die korrekte afkorting vir 'Doktor'?",
-                    options: ["DK.", "Dr.", "Dkt.", "Dok."],
-                    answer: 1,
-                    explanation: "Die korrekte afkorting vir 'Doktor' is 'Dr.'."
-                },
-                {
-                    section: "afkortings",
-                    question: "Wat is die korrekte afkorting vir 'ensovoorts'?",
-                    options: ["ens.", "env.", "esv.", "e.s."],
-                    answer: 0,
-                    explanation: "Die korrekte afkorting vir 'ensovoorts' is 'ens.'."
-                },
-
-                // Intensiewe Vorm (Intensive Form)
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'nuut'?",
-                    options: ["Splinternuut", "Baie nuut", "Nuwer", "Nuutste"],
-                    answer: 0,
-                    explanation: "Die intensiewe vorm van 'nuut' is 'splinternuut'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'dood'?",
-                    options: ["Baie dood", "Morsdood", "Dodend", "Dodelik"],
-                    answer: 1,
-                    explanation: "Die intensiewe vorm van 'dood' is 'morsdood'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'alleen'?",
-                    options: ["Baie alleen", "Alleenste", "Moedersielalleen", "Alleenlik"],
-                    answer: 2,
-                    explanation: "Die intensiewe vorm van 'alleen' is 'moedersielalleen'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'oud'?",
-                    options: ["Baie oud", "Oudste", "Stokoud", "Ouerig"],
-                    answer: 2,
-                    explanation: "Die intensiewe vorm van 'oud' is 'stokoud'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'leeg'?",
-                    options: ["Dolleg", "Baie leeg", "Leegste", "Uitgeleedig"],
-                    answer: 0,
-                    explanation: "Die intensiewe vorm van 'leeg' is 'dolleg'."
-                },
-                // New Intensiewe vorm questions
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'droog'?",
-                    options: ["Baie droog", "Kurkdroog", "Droër", "Uitgedroog"],
-                    answer: 1,
-                    explanation: "Die intensiewe vorm van 'droog' is 'kurkdroog'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'swart'?",
-                    options: ["Donkerswart", "Swarter", "Pikswart", "Koolswart"],
-                    answer: 2,
-                    explanation: "Die intensiewe vorm van 'swart' is 'pikswart'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'wit'?",
-                    options: ["Spierwit", "Baie wit", "Witter", "Melkwit"],
-                    answer: 0,
-                    explanation: "Die intensiewe vorm van 'wit' is 'spierwit'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'vet'?",
-                    options: ["Baie vet", "Vetter", "Oorvet", "Spekvet"],
-                    answer: 3,
-                    explanation: "Die intensiewe vorm van 'vet' is 'spekvet'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'rooi'?",
-                    options: ["Bloedrooi", "Baie rooi", "Rooier", "Helderrooi"],
-                    answer: 0,
-                    explanation: "Die intensiewe vorm van 'rooi' is 'bloedrooi'."
-                },
-                {
-                    section: "intensiewe-vorm",
-                    question: "Wat is die intensiewe vorm van 'blou'?",
-                    options: ["Donkerblou", "Potblou", "Blouer", "Hemelblou"],
-                    answer: 1,
-                    explanation: "Die intensiewe vorm van 'blou' is 'potblou'."
+            // Data for intensive forms
+            const intensiveFormsJSON = {
+              "title": "Intensive forms - dit is altyd EEN woord",
+              "data": [
+                { "number": 1, "afrikaans": "brandarm", "english": "very poor" },
+                { "number": 2, "afrikaans": "brandmaer", "english": "very skinny" },
+                { "number": 3, "afrikaans": "sopnat", "english": "very wet" },
+                { "number": 4, "afrikaans": "stokoud", "english": "very old" },
+                { "number": 5, "afrikaans": "stokdoof", "english": "very deaf" },
+                { "number": 6, "afrikaans": "morsdood", "english": "very dead" },
+                { "number": 7, "afrikaans": "piepklein", "english": "very small" },
+                { "number": 8, "afrikaans": "spekvet", "english": "very fat" },
+                { "number": 9, "afrikaans": "kliphard", "english": "very hard" },
+                { "number": 10, "afrikaans": "papsag", "english": "very soft" },
+                { "number": 11, "afrikaans": "vuurwarm", "english": "very warm" }, // Corrected from vuuurwarm, assuming standard spelling
+                { "number": 12, "afrikaans": "yskoud", "english": "very cold" },
+                { "number": 13, "afrikaans": "seepglad", "english": "very slippery" },
+                { "number": 14, "afrikaans": "kurkdroog", "english": "very dry" },
+                { "number": 15, "afrikaans": "blitsvinnig", "english": "very fast" },
+                { "number": 16, "afrikaans": "goudgeel", "english": "very yellow" },
+                { "number": 17, "afrikaans": "bloedrooi", "english": "very red" },
+                { "number": 18, "afrikaans": "potblou", "english": "very blue" },
+                { "number": 19, "afrikaans": "pikswart", "english": "very black" },
+                { "number": 20, "afrikaans": "spierwit", "english": "very white" }
+              ]
+            };
+             // User provided JSON had "vuuurwarm", let's respect that if it's intentional.
+            const userIntensiveFormsData = intensiveFormsJSON.data.map(item => {
+                if (item.english === "very warm" && item.afrikaans === "vuuurwarm") { // Keep user's specific spelling if present
+                    return item;
+                } else if (item.english === "very warm" && item.afrikaans === "vuurwarm") { // If JSON was already corrected
+                     return item;
                 }
+                // Default case: if 'vuurwarm' was changed above, ensure we use the JSON one if it was 'vuuurwarm'
+                const originalJsonEntry = {"number": 11, "afrikaans": "vuuurwarm", "english": "very warm"};
+                if (item.number === 11 && item.english === "very warm") {
+                    return {...item, afrikaans: originalJsonEntry.afrikaans}; // Use "vuuurwarm" from the original JSON if it was that specific entry
+                }
+                return item;
+            });
+
+
+            const engToAfrBase = {
+                "poor": "arm", "skinny": "maer", "wet": "nat", "old": "oud", "deaf": "doof",
+                "dead": "dood", "small": "klein", "fat": "vet", "hard": "hard", "soft": "sag",
+                "warm": "warm", "cold": "koud", "slippery": "glad", "dry": "droog", "fast": "vinnig",
+                "yellow": "geel", "red": "rooi", "blue": "blou", "black": "swart", "white": "wit"
+            };
+
+            const allIntensiveFormsFromSource = userIntensiveFormsData.map(d => d.afrikaans);
+            const generatedIntensiveQuestions = [];
+
+            userIntensiveFormsData.forEach(item => {
+                const correctAnswer = item.afrikaans;
+                const englishBaseWord = item.english.replace("very ", "").toLowerCase();
+                const afrikaansBaseWord = engToAfrBase[englishBaseWord];
+
+                if (!afrikaansBaseWord) {
+                    console.warn(`Skipping intensive form question: No Afrikaans base word for ${englishBaseWord} (from ${correctAnswer})`);
+                    return;
+                }
+
+                let currentOptionsSet = new Set();
+                currentOptionsSet.add(correctAnswer);
+
+                const distractor1 = `Baie ${afrikaansBaseWord}`;
+                if (distractor1 !== correctAnswer) currentOptionsSet.add(distractor1);
+
+                const distractor2 = afrikaansBaseWord;
+                if (distractor2 !== correctAnswer && !currentOptionsSet.has(distractor2)) currentOptionsSet.add(distractor2);
+                
+                let otherIntensivesPool = allIntensiveFormsFromSource.filter(form => !currentOptionsSet.has(form));
+                otherIntensivesPool.sort(() => Math.random() - 0.5);
+
+                let poolIdx = 0;
+                while (currentOptionsSet.size < 4 && poolIdx < otherIntensivesPool.length) {
+                    currentOptionsSet.add(otherIntensivesPool[poolIdx]);
+                    poolIdx++;
+                }
+                
+                // Fallback if somehow still not 4 unique options
+                const genericFallbackDistractors = ["Wonderlik", "Fantasties", "Uitstekend", "Ongelooflik"];
+                let fallbackIdx = 0;
+                while(currentOptionsSet.size < 4 && fallbackIdx < genericFallbackDistractors.length){
+                    if(!currentOptionsSet.has(genericFallbackDistractors[fallbackIdx])) {
+                        currentOptionsSet.add(genericFallbackDistractors[fallbackIdx]);
+                    }
+                    fallbackIdx++;
+                }
+                
+                let finalOptions = Array.from(currentOptionsSet);
+                if (finalOptions.length > 4) finalOptions = finalOptions.slice(0, 4); // Ensure exactly 4
+                 while (finalOptions.length < 4) finalOptions.push(`Nog 'n ${finalOptions.length+1}`); // Absolute fallback
+
+
+                finalOptions.sort(() => Math.random() - 0.5);
+                const answerIndex = finalOptions.indexOf(correctAnswer);
+
+                if (answerIndex === -1) { // Should ideally not happen with robust generation
+                    console.error("Correct answer not found in options:", correctAnswer, finalOptions);
+                    // Attempt to recover: place correct answer and ensure 4 options
+                    let recoveryOptions = [correctAnswer];
+                    let tempPool = allIntensiveFormsFromSource.filter(f => f !== correctAnswer)
+                                    .concat(genericFallbackDistractors)
+                                    .filter(f => f !== correctAnswer); // ensure no double correct
+                    tempPool.sort(() => Math.random() - 0.5);
+                    for(let i=0; i<3 && i < tempPool.length; i++) {
+                        if(!recoveryOptions.includes(tempPool[i])) recoveryOptions.push(tempPool[i]);
+                    }
+                    while(recoveryOptions.length < 4) recoveryOptions.push(`Alt Opsie ${recoveryOptions.length}`);
+                    finalOptions = recoveryOptions.slice(0,4).sort(() => Math.random() - 0.5);
+                    // answerIndex = finalOptions.indexOf(correctAnswer); // Re-evaluate index
+                }
+
+
+                generatedIntensiveQuestions.push({
+                    section: "intensiewe-vorm",
+                    question: `Wat is die intensiewe vorm van '${afrikaansBaseWord}'?`,
+                    options: finalOptions,
+                    answer: finalOptions.indexOf(correctAnswer), // Re-evaluate index after final shuffle
+                    explanation: `Die intensiewe vorm van '${afrikaansBaseWord}' is '${correctAnswer}'.`
+                });
+            });
+            
+            // Original Questions for other sections
+            const soorteSinneQuestions = [
+                { section: "soorte-sinne", question: "Watter tipe sin is: 'Ek hou van lees.'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 0, explanation: "Dit is 'n stelsin omdat dit 'n stelling maak." },
+                { section: "soorte-sinne", question: "Identifiseer die tipe sin: 'Gee vir my die boek!'", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 2, explanation: "Dit is 'n bevelsin omdat dit 'n opdrag gee." },
+                { section: "soorte-sinne", question: "Watter tipe sin is: 'Wat 'n pragtige dag!'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 3, explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk." },
+                { section: "soorte-sinne", question: "Identifiseer die tipe sin: 'Wanneer gaan ons skool toe?'", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 1, explanation: "Dit is 'n vraagsin omdat dit 'n vraag vra." },
+                { section: "soorte-sinne", question: "Watter tipe sin is: 'Sjoe, dit was 'n moeilike toets!'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 3, explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk." }
+            ];
+            const afkortingsQuestions = [
+                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'Meneer'?", options: ["Mr.", "Mnr.", "Men.", "M."], answer: 1, explanation: "Die korrekte afkorting vir 'Meneer' is 'Mnr.'." },
+                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'byvoorbeeld'?", options: ["bv.", "b.v.", "byv.", "bvb."], answer: 0, explanation: "Die korrekte afkorting vir 'byvoorbeeld' is 'bv.'." },
+                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'onder andere'?", options: ["o.a.", "oa.", "ond.", "o/a"], answer: 0, explanation: "Die korrekte afkorting vir 'onder andere' is 'o.a.'." },
+                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'Doktor'?", options: ["DK.", "Dr.", "Dkt.", "Dok."], answer: 1, explanation: "Die korrekte afkorting vir 'Doktor' is 'Dr.'." },
+                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'ensovoorts'?", options: ["ens.", "env.", "esv.", "e.s."], answer: 0, explanation: "Die korrekte afkorting vir 'ensovoorts' is 'ens.'." }
             ];
 
-            // Quiz state
+            const quizQuestions = [
+                ...soorteSinneQuestions,
+                ...afkortingsQuestions,
+                ...generatedIntensiveQuestions
+            ];
+
             let currentQuestion = 0;
             let score = 0;
             let answered = Array(quizQuestions.length).fill(false);
-            let sectionScores = {
-                "soorte-sinne": 0,
-                "afkortings": 0,
-                "intensiewe-vorm": 0
-            };
+            let userAnswers = Array(quizQuestions.length).fill(undefined);
+            let sectionScores = { "soorte-sinne": 0, "afkortings": 0, "intensiewe-vorm": 0 };
 
-            // DOM elements
-            const quizContent = document.getElementById('quiz-content');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            const questionNumber = document.getElementById('question-number');
-            const scoreDisplay = document.getElementById('score-display');
-            const progressBar = document.getElementById('progress-bar');
-            const resultsSection = document.getElementById('results');
-            const resultCard = document.querySelector('.result-card');
-            const finalScore = document.getElementById('final-score');
-            const scoreBar = document.getElementById('score-bar');
-            const percentageDisplay = document.getElementById('percentage');
-            const section1Score = document.getElementById('section1-score');
-            const section2Score = document.getElementById('section2-score');
-            const section3Score = document.getElementById('section3-score');
-            const feedbackElement = document.getElementById('feedback');
-            const restartBtn = document.getElementById('restart-btn');
-            const scoreEmoji = document.getElementById('score-emoji');
+            const quizContentEl = document.getElementById('quiz-content');
+            const prevBtnEl = document.getElementById('prev-btn');
+            const nextBtnEl = document.getElementById('next-btn');
+            const questionNumberEl = document.getElementById('question-number');
+            const scoreDisplayEl = document.getElementById('score-display');
+            const progressBarEl = document.getElementById('progress-bar');
+            const resultsSectionEl = document.getElementById('results');
+            const resultCardEl = document.querySelector('.result-card');
+            const finalScoreEl = document.getElementById('final-score');
+            const scoreBarEl = document.getElementById('score-bar');
+            const percentageDisplayEl = document.getElementById('percentage');
+            const section1ScoreEl = document.getElementById('section1-score');
+            const section2ScoreEl = document.getElementById('section2-score');
+            const section3ScoreEl = document.getElementById('section3-score');
+            const feedbackElementEl = document.getElementById('feedback');
+            const restartBtnEl = document.getElementById('restart-btn');
+            const scoreEmojiEl = document.getElementById('score-emoji');
 
-
-            // Initialize quiz
             function initQuiz() {
                 showQuestion(currentQuestion);
                 updateProgressBar();
+                scoreDisplayEl.textContent = `Punte: ${score}`;
+                // Update total question count in UI text elements that are static
+                questionNumberEl.textContent = `Vraag ${currentQuestion + 1} van ${quizQuestions.length}`;
+                finalScoreEl.textContent = `${score}/${quizQuestions.length}`; // Initial result text
             }
 
-            prevBtn.addEventListener('click', showPreviousQuestion);
-            nextBtn.addEventListener('click', handleNextButton);
-            restartBtn.addEventListener('click', restartQuiz);
+            prevBtnEl.addEventListener('click', showPreviousQuestion);
+            nextBtnEl.addEventListener('click', handleNextButton);
+            restartBtnEl.addEventListener('click', restartQuiz);
 
-            // Show current question
             function showQuestion(index) {
                 const question = quizQuestions[index];
-                // Update question number display
-                questionNumber.textContent = `Vraag ${index + 1} van ${quizQuestions.length}`;
+                if (!question) {
+                    console.error("Question not found at index:", index);
+                    return; // Should not happen
+                }
+                questionNumberEl.textContent = `Vraag ${index + 1} van ${quizQuestions.length}`;
 
-                // Create question HTML
                 let html = `<div class="mb-6">
                                 <h2 class="text-xl font-semibold mb-4">${question.question}</h2>
                                 <div class="space-y-3">`;
 
-                // Add options
-                question.options.forEach((option, i) => {
-                    const selectedClass = answered[index] && document.querySelector(`.option[data-index="${i}"]`)?.classList.contains('selected') ? 'selected' : '';
-                    const correctClass = answered[index] && i === question.answer ? 'correct' : '';
-                    const incorrectClass = answered[index] && document.querySelector(`.option[data-index="${i}"]`)?.classList.contains('selected') && i !== question.answer ? 'incorrect' : '';
+                const userAnswerForThisQuestion = userAnswers[index];
+                const correctAnswerForThisQuestion = question.answer;
 
-                    html += `<div class="option ${selectedClass} ${correctClass} ${incorrectClass} flex items-center p-3 border-2 border-gray-200 rounded-lg data-index="${i}">
+                question.options.forEach((option, i) => {
+                    let optionSpecificClasses = '';
+                    if (answered[index]) {
+                        if (i === userAnswerForThisQuestion) {
+                            optionSpecificClasses += ' selected';
+                            if (userAnswerForThisQuestion === correctAnswerForThisQuestion) {
+                                optionSpecificClasses += ' correct celebrate';
+                            } else {
+                                optionSpecificClasses += ' incorrect';
+                            }
+                        }
+                        if (userAnswerForThisQuestion !== undefined && userAnswerForThisQuestion !== correctAnswerForThisQuestion && i === correctAnswerForThisQuestion) {
+                            optionSpecificClasses += ' correct';
+                        }
+                    }
+                    html += `<div class="option flex items-center p-3 border-2 border-gray-200 rounded-lg${optionSpecificClasses}" data-index="${i}">
                                 <span class="option-letter text-sm font-medium mr-3">${String.fromCharCode(65 + i)}</span>
                                 <span class="flex-grow">${option}</span>
                              </div>`;
                 });
-
                 html += `   </div>
                           </div>`;
 
-                // Add explanation if question is answered
                 if (answered[index]) {
-                    html += `<div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    html += `<div class="bg-blue-50 p-4 rounded-lg mt-4 mb-4">
                                 <p class="text-blue-800"><strong>Verduideliking:</strong> ${question.explanation}</p>
                              </div>`;
                 }
+                quizContentEl.innerHTML = html;
 
-                quizContent.innerHTML = html;
-
-                // Add event listeners to options if not answered yet
                 if (!answered[index]) {
-                    document.querySelectorAll('.option').forEach(option => {
-                        option.addEventListener('click', () => selectOption(option));
+                    document.querySelectorAll('.option').forEach(optionEl => {
+                        optionEl.addEventListener('click', () => selectOption(optionEl));
+                    });
+                } else { 
+                    document.querySelectorAll('.option').forEach(optionEl => {
+                        optionEl.style.cursor = 'default';
                     });
                 }
-                // Update button states
-                prevBtn.disabled = index === 0;
-                nextBtn.textContent = index === quizQuestions.length - 1 ? "Voltooi" : "Volgende";
+
+                prevBtnEl.disabled = index === 0;
+                nextBtnEl.textContent = index === quizQuestions.length - 1 ? "Voltooi" : "Volgende";
+                updateProgressBar();
             }
 
-            // Handle option selection
             function selectOption(selectedOption) {
-                if (answered[currentQuestion]) return; // Prevent re-answering
+                if (answered[currentQuestion]) return;
 
                 const selectedIndex = parseInt(selectedOption.dataset.index);
                 const correctIndex = quizQuestions[currentQuestion].answer;
 
-                // Mark as answered
                 answered[currentQuestion] = true;
+                userAnswers[currentQuestion] = selectedIndex;
 
-                // Remove selected class from all options
                 document.querySelectorAll('.option').forEach(opt => {
-                    opt.classList.remove('selected');
+                    opt.classList.remove('selected'); 
+                    opt.style.cursor = 'default';
+                    const new_opt = opt.cloneNode(true); 
+                    opt.parentNode.replaceChild(new_opt, opt);
                 });
 
-                // Add selected class to clicked option
-                selectedOption.classList.add('selected');
+                const currentOptions = quizContentEl.querySelectorAll('.option');
+                const actualSelectedOptionElement = currentOptions[selectedIndex];
 
-                // Check if answer is correct
-                if (selectedIndex === correctIndex) {
-                    selectedOption.classList.add('correct');
-                    score++;
-                    sectionScores[quizQuestions[currentQuestion].section]++;
-                    // Show celebration animation
-                    selectedOption.classList.add('celebrate');
-                } else {
-                    selectedOption.classList.add('incorrect');
-                    // Show correct answer
-                    document.querySelectorAll('.option')[correctIndex].classList.add('correct');
+                if (actualSelectedOptionElement) { // Check if element exists
+                    actualSelectedOptionElement.classList.add('selected');
+                    if (selectedIndex === correctIndex) {
+                        actualSelectedOptionElement.classList.add('correct');
+                        actualSelectedOptionElement.classList.add('celebrate');
+                        score++;
+                        sectionScores[quizQuestions[currentQuestion].section]++;
+                    } else {
+                        actualSelectedOptionElement.classList.add('incorrect');
+                        if (currentOptions[correctIndex]) {
+                            currentOptions[correctIndex].classList.add('correct');
+                        }
+                    }
                 }
-                // Update score display
-                scoreDisplay.textContent = `Punte: ${score}`;
+                scoreDisplayEl.textContent = `Punte: ${score}`;
 
-                // Show explanation
                 const explanationHTML = `
                     <div class="bg-blue-50 p-4 rounded-lg mt-4 mb-4">
                         <p class="text-blue-800"><strong>Verduideliking:</strong> ${quizQuestions[currentQuestion].explanation}</p>
                     </div>`;
-                quizContent.insertAdjacentHTML('beforeend', explanationHTML);
+                quizContentEl.insertAdjacentHTML('beforeend', explanationHTML);
             }
 
-            // Show previous question
             function showPreviousQuestion() {
                 if (currentQuestion > 0) {
                     currentQuestion--;
                     showQuestion(currentQuestion);
-                    updateProgressBar();
                 }
             }
 
-            // Handle next button click
             function handleNextButton() {
                 if (currentQuestion < quizQuestions.length - 1) {
                     currentQuestion++;
                     showQuestion(currentQuestion);
-                    updateProgressBar();
                 } else {
                     showResults();
                 }
             }
 
-            // Update progress bar
             function updateProgressBar() {
-                const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
-                progressBar.style.width = `${progress}%`;
+                if (quizQuestions.length > 0) { // Avoid division by zero
+                    const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+                    progressBarEl.style.width = `${progress}%`;
+                } else {
+                    progressBarEl.style.width = `0%`;
+                }
             }
 
-            // Show results
             function showResults() {
                 document.getElementById('quiz-content').classList.add('hidden');
                 document.getElementById('controls').classList.add('hidden');
                 document.getElementById('progress-container').classList.add('hidden');
-                resultsSection.classList.remove('hidden');
+                resultsSectionEl.classList.remove('hidden');
 
-                // Calculate scores
                 const totalScore = score;
-                const percentage = Math.round((totalScore / quizQuestions.length) * 100);
+                const percentage = quizQuestions.length > 0 ? Math.round((totalScore / quizQuestions.length) * 100) : 0;
 
-                // Update result elements
-                finalScore.textContent = `${totalScore}/${quizQuestions.length}`;
-                scoreBar.style.width = `${percentage}%`;
-                percentageDisplay.textContent = `${percentage}%`;
+                finalScoreEl.textContent = `${totalScore}/${quizQuestions.length}`;
+                scoreBarEl.style.width = `${percentage}%`;
+                percentageDisplayEl.textContent = `${percentage}%`;
+                section1ScoreEl.textContent = `${sectionScores["soorte-sinne"]}/${soorteSinneQuestions.length}`;
+                section2ScoreEl.textContent = `${sectionScores["afkortings"]}/${afkortingsQuestions.length}`;
+                section3ScoreEl.textContent = `${sectionScores["intensiewe-vorm"]}/${generatedIntensiveQuestions.length}`;
 
-                section1Score.textContent = `${sectionScores["soorte-sinne"]}/5`;
-                section2Score.textContent = `${sectionScores["afkortings"]}/5`;
-                section3Score.textContent = `${sectionScores["intensiewe-vorm"]}/11`; // Updated total for intensiewe vorm
-
-                // Set feedback based on score
                 let feedback = "";
                 let emoji = "";
+                if (percentage >= 80) { feedback = "Uitstekend! Jy het 'n baie goeie begrip van hierdie taalvaardighede."; emoji = "🥳"; }
+                else if (percentage >= 60) { feedback = "Goed gedoen! Jy verstaan die meeste konsepte, maar daar is nog ruimte vir verbetering."; emoji = "👍"; }
+                else if (percentage >= 40) { feedback = "Goeie poging! Probeer om meer te oefen om jou begrip te verbeter."; emoji = "💪"; }
+                else { feedback = "Moenie moed opgee nie! Met meer oefening sal jy verbeter."; emoji = "📚"; }
+                feedbackElementEl.innerHTML = `<p class="text-lg font-medium text-gray-700">${feedback}</p>`;
+                scoreEmojiEl.textContent = emoji;
 
-                if (percentage >= 80) {
-                    feedback = "Uitstekend! Jy het 'n baie goeie begrip van hierdie taalvaardighede.";
-                    emoji = "🥳";
-                } else if (percentage >= 60) {
-                    feedback = "Goed gedoen! Jy verstaan die meeste konsepte, maar daar is nog ruimte vir verbetering.";
-                    emoji = "👍";
-                } else if (percentage >= 40) {
-                    feedback = "Goeie poging! Probeer om meer te oefen om jou begrip te verbeter.";
-                    emoji = "💪";
-                } else {
-                    feedback = "Moenie moed opgee nie! Met meer oefening sal jy verbeter.";
-                    emoji = "📚";
-                }
-                feedbackElement.innerHTML = `<p class="text-lg font-medium text-gray-700">${feedback}</p>`;
-                scoreEmoji.textContent = emoji;
-
-                // Show result card with animation
-                setTimeout(() => {
-                    resultCard.classList.add('show');
-                }, 100);
+                setTimeout(() => { resultCardEl.classList.add('show'); }, 100);
             }
 
-            // Restart quiz
             function restartQuiz() {
                 currentQuestion = 0;
                 score = 0;
                 answered = Array(quizQuestions.length).fill(false);
-                sectionScores = {
-                    "soorte-sinne": 0,
-                    "afkortings": 0,
-                    "intensiewe-vorm": 0
-                };
-
-                scoreDisplay.textContent = `Punte: 0`;
-                resultsSection.classList.add('hidden');
+                userAnswers = Array(quizQuestions.length).fill(undefined);
+                sectionScores = { "soorte-sinne": 0, "afkortings": 0, "intensiewe-vorm": 0 };
+                
+                resultsSectionEl.classList.add('hidden');
+                resultCardEl.classList.remove('show'); 
                 document.getElementById('quiz-content').classList.remove('hidden');
                 document.getElementById('controls').classList.remove('hidden');
                 document.getElementById('progress-container').classList.remove('hidden');
-                resultCard.classList.remove('show');
-
+                
                 initQuiz();
             }
-
-            // Initialize
             initQuiz();
         });
     </script>
