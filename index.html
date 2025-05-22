@@ -302,7 +302,7 @@
                 ...generatedIntensiveQuestions
             ];
 
-            let currentQuestion = 0;
+            let currentQuestion = Math.floor(Math.random() * quizQuestions.length);
             let score = 0;
             let answered = Array(quizQuestions.length).fill(false);
             let userAnswers = Array(quizQuestions.length).fill(undefined);
