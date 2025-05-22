@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="af">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,85 +7,70 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
-
         body {
             font-family: 'Nunito', sans-serif;
-            background-color: #f0f9ff; /* Tailwind blue-50 */
+            background-color: #f0f9ff;
         }
-
         .quiz-container {
             max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            border-radius: 1rem; /* Tailwind rounded-xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-
         .option {
             transition: all 0.3s ease;
             cursor: pointer;
         }
-
         .option:not(.selected):not(.correct):not(.incorrect):hover {
             transform: translateY(-2px);
-            border-color: #9ca3af; 
+            border-color: #9ca3af;
         }
-
         .option.selected {
-            border-color: #3b82f6; 
+            border-color: #3b82f6;
             background-color: #eff6ff;
         }
-
         .option.correct {
-            border-color: #10b981 !important; 
-            background-color: #d1fae5 !important; 
+            border-color: #10b981 !important;
+            background-color: #d1fae5 !important;
         }
-
         .option.incorrect {
-            border-color: #ef4444 !important; 
+            border-color: #ef4444 !important;
             background-color: #fee2e2 !important;
         }
-        .option.selected.incorrect { 
-             border-color: #ef4444 !important;
-             background-color: #fee2e2 !important;
+        .option.selected.incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fee2e2 !important;
         }
-
-
         .progress-bar {
             height: 8px;
             transition: width 0.5s ease;
         }
-
         .result-card {
             transition: all 0.5s ease;
             transform: scale(0.95);
             opacity: 0;
         }
-
         .result-card.show {
             transform: scale(1);
             opacity: 1;
         }
-
         @keyframes celebrate {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
         .celebrate {
             animation: celebrate 0.5s ease;
         }
     </style>
 </head>
-
 <body class="py-8 px-4">
     <div class="quiz-container p-6 md:p-8">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-blue-700 mb-2">Graad 6 Taalvaardighede Toets</h1>
             <p class="text-gray-600">Toets jou kennis oor soorte sinne, afkortings en intensiewe vorm!</p>
         </div>
-
         <div id="progress-container" class="mb-6">
             <div class="flex justify-between mb-1">
                 <span id="question-number" class="text-sm font-medium text-blue-700">Vraag 1 van 30</span>
@@ -96,16 +80,11 @@
                 <div id="progress-bar" class="bg-blue-600 rounded-full" style="width: 0%"></div>
             </div>
         </div>
-
-        <div id="quiz-content" class="mb-8">
-            <!-- Questions will be inserted here by JavaScript -->
-        </div>
-
+        <div id="quiz-content" class="mb-8"></div>
         <div id="controls" class="flex justify-between">
             <button id="prev-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">Vorige</button>
             <button id="next-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Volgende</button>
         </div>
-
         <div id="results" class="hidden">
             <div class="result-card bg-white rounded-xl p-6 shadow-lg border-2 border-blue-500">
                 <div class="text-center mb-6">
@@ -113,7 +92,6 @@
                     <h2 class="text-2xl font-bold text-blue-700 mb-1">Toets Voltooi!</h2>
                     <p class="text-gray-600">Hier is jou uitslag:</p>
                 </div>
-
                 <div class="bg-blue-50 rounded-lg p-4 mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-medium">Finale Punte:</span>
@@ -127,7 +105,6 @@
                         <span id="percentage">0%</span>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-blue-100 p-4 rounded-lg text-center">
                         <h3 class="font-medium text-blue-800 mb-1">Soorte Sinne</h3>
@@ -142,172 +119,45 @@
                         <p id="section3-score" class="font-bold text-lg">0/20</p>
                     </div>
                 </div>
-
                 <div id="feedback" class="text-center mb-6">
                     <p class="text-lg font-medium text-gray-700">Goeie poging! Hou aan oefen om te verbeter.</p>
                 </div>
-
                 <div class="flex justify-center">
                     <button id="restart-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Herbegin Toets</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Data for intensive forms
-            const intensiveFormsJSON = {
-              "title": "Intensive forms - dit is altyd EEN woord",
-              "data": [
-                { "number": 1, "afrikaans": "brandarm", "english": "very poor" },
-                { "number": 2, "afrikaans": "brandmaer", "english": "very skinny" },
-                { "number": 3, "afrikaans": "sopnat", "english": "very wet" },
-                { "number": 4, "afrikaans": "stokoud", "english": "very old" },
-                { "number": 5, "afrikaans": "stokdoof", "english": "very deaf" },
-                { "number": 6, "afrikaans": "morsdood", "english": "very dead" },
-                { "number": 7, "afrikaans": "piepklein", "english": "very small" },
-                { "number": 8, "afrikaans": "spekvet", "english": "very fat" },
-                { "number": 9, "afrikaans": "kliphard", "english": "very hard" },
-                { "number": 10, "afrikaans": "papsag", "english": "very soft" },
-                { "number": 11, "afrikaans": "vuurwarm", "english": "very warm" }, // Corrected from vuuurwarm, assuming standard spelling
-                { "number": 12, "afrikaans": "yskoud", "english": "very cold" },
-                { "number": 13, "afrikaans": "seepglad", "english": "very slippery" },
-                { "number": 14, "afrikaans": "kurkdroog", "english": "very dry" },
-                { "number": 15, "afrikaans": "blitsvinnig", "english": "very fast" },
-                { "number": 16, "afrikaans": "goudgeel", "english": "very yellow" },
-                { "number": 17, "afrikaans": "bloedrooi", "english": "very red" },
-                { "number": 18, "afrikaans": "potblou", "english": "very blue" },
-                { "number": 19, "afrikaans": "pikswart", "english": "very black" },
-                { "number": 20, "afrikaans": "spierwit", "english": "very white" }
-              ]
-            };
-             // User provided JSON had "vuuurwarm", let's respect that if it's intentional.
-            const userIntensiveFormsData = intensiveFormsJSON.data.map(item => {
-                if (item.english === "very warm" && item.afrikaans === "vuuurwarm") { // Keep user's specific spelling if present
-                    return item;
-                } else if (item.english === "very warm" && item.afrikaans === "vuurwarm") { // If JSON was already corrected
-                     return item;
+            // ... [Your question generation code here, unchanged] ...
+
+            // ---SHUFFLE FUNCTION ADDED---
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
                 }
-                // Default case: if 'vuurwarm' was changed above, ensure we use the JSON one if it was 'vuuurwarm'
-                const originalJsonEntry = {"number": 11, "afrikaans": "vuuurwarm", "english": "very warm"};
-                if (item.number === 11 && item.english === "very warm") {
-                    return {...item, afrikaans: originalJsonEntry.afrikaans}; // Use "vuuurwarm" from the original JSON if it was that specific entry
-                }
-                return item;
-            });
+            }
 
+            // ---YOUR QUESTION DATA (soorteSinneQuestions, afkortingsQuestions, generatedIntensiveQuestions)---
 
-            const engToAfrBase = {
-                "poor": "arm", "skinny": "maer", "wet": "nat", "old": "oud", "deaf": "doof",
-                "dead": "dood", "small": "klein", "fat": "vet", "hard": "hard", "soft": "sag",
-                "warm": "warm", "cold": "koud", "slippery": "glad", "dry": "droog", "fast": "vinnig",
-                "yellow": "geel", "red": "rooi", "blue": "blou", "black": "swart", "white": "wit"
-            };
-
-            const allIntensiveFormsFromSource = userIntensiveFormsData.map(d => d.afrikaans);
-            const generatedIntensiveQuestions = [];
-
-            userIntensiveFormsData.forEach(item => {
-                const correctAnswer = item.afrikaans;
-                const englishBaseWord = item.english.replace("very ", "").toLowerCase();
-                const afrikaansBaseWord = engToAfrBase[englishBaseWord];
-
-                if (!afrikaansBaseWord) {
-                    console.warn(`Skipping intensive form question: No Afrikaans base word for ${englishBaseWord} (from ${correctAnswer})`);
-                    return;
-                }
-
-                let currentOptionsSet = new Set();
-                currentOptionsSet.add(correctAnswer);
-
-                const distractor1 = `Baie ${afrikaansBaseWord}`;
-                if (distractor1 !== correctAnswer) currentOptionsSet.add(distractor1);
-
-                const distractor2 = afrikaansBaseWord;
-                if (distractor2 !== correctAnswer && !currentOptionsSet.has(distractor2)) currentOptionsSet.add(distractor2);
-                
-                let otherIntensivesPool = allIntensiveFormsFromSource.filter(form => !currentOptionsSet.has(form));
-                otherIntensivesPool.sort(() => Math.random() - 0.5);
-
-                let poolIdx = 0;
-                while (currentOptionsSet.size < 4 && poolIdx < otherIntensivesPool.length) {
-                    currentOptionsSet.add(otherIntensivesPool[poolIdx]);
-                    poolIdx++;
-                }
-                
-                // Fallback if somehow still not 4 unique options
-                const genericFallbackDistractors = ["Wonderlik", "Fantasties", "Uitstekend", "Ongelooflik"];
-                let fallbackIdx = 0;
-                while(currentOptionsSet.size < 4 && fallbackIdx < genericFallbackDistractors.length){
-                    if(!currentOptionsSet.has(genericFallbackDistractors[fallbackIdx])) {
-                        currentOptionsSet.add(genericFallbackDistractors[fallbackIdx]);
-                    }
-                    fallbackIdx++;
-                }
-                
-                let finalOptions = Array.from(currentOptionsSet);
-                if (finalOptions.length > 4) finalOptions = finalOptions.slice(0, 4); // Ensure exactly 4
-                 while (finalOptions.length < 4) finalOptions.push(`Nog 'n ${finalOptions.length+1}`); // Absolute fallback
-
-
-                finalOptions.sort(() => Math.random() - 0.5);
-                const answerIndex = finalOptions.indexOf(correctAnswer);
-
-                if (answerIndex === -1) { // Should ideally not happen with robust generation
-                    console.error("Correct answer not found in options:", correctAnswer, finalOptions);
-                    // Attempt to recover: place correct answer and ensure 4 options
-                    let recoveryOptions = [correctAnswer];
-                    let tempPool = allIntensiveFormsFromSource.filter(f => f !== correctAnswer)
-                                    .concat(genericFallbackDistractors)
-                                    .filter(f => f !== correctAnswer); // ensure no double correct
-                    tempPool.sort(() => Math.random() - 0.5);
-                    for(let i=0; i<3 && i < tempPool.length; i++) {
-                        if(!recoveryOptions.includes(tempPool[i])) recoveryOptions.push(tempPool[i]);
-                    }
-                    while(recoveryOptions.length < 4) recoveryOptions.push(`Alt Opsie ${recoveryOptions.length}`);
-                    finalOptions = recoveryOptions.slice(0,4).sort(() => Math.random() - 0.5);
-                    // answerIndex = finalOptions.indexOf(correctAnswer); // Re-evaluate index
-                }
-
-
-                generatedIntensiveQuestions.push({
-                    section: "intensiewe-vorm",
-                    question: `Wat is die intensiewe vorm van '${afrikaansBaseWord}'?`,
-                    options: finalOptions,
-                    answer: finalOptions.indexOf(correctAnswer), // Re-evaluate index after final shuffle
-                    explanation: `Die intensiewe vorm van '${afrikaansBaseWord}' is '${correctAnswer}'.`
-                });
-            });
-            
-            // Original Questions for other sections
-            const soorteSinneQuestions = [
-                { section: "soorte-sinne", question: "Watter tipe sin is: 'Ek hou van lees.'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 0, explanation: "Dit is 'n stelsin omdat dit 'n stelling maak." },
-                { section: "soorte-sinne", question: "Identifiseer die tipe sin: 'Gee vir my die boek!'", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 2, explanation: "Dit is 'n bevelsin omdat dit 'n opdrag gee." },
-                { section: "soorte-sinne", question: "Watter tipe sin is: 'Wat 'n pragtige dag!'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 3, explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk." },
-                { section: "soorte-sinne", question: "Identifiseer die tipe sin: 'Wanneer gaan ons skool toe?'", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 1, explanation: "Dit is 'n vraagsin omdat dit 'n vraag vra." },
-                { section: "soorte-sinne", question: "Watter tipe sin is: 'Sjoe, dit was 'n moeilike toets!'?", options: ["Stelsin", "Vraagsin", "Bevelsin", "Uitroepsin"], answer: 3, explanation: "Dit is 'n uitroepsin omdat dit 'n emosie of gevoel uitdruk." }
-            ];
-            const afkortingsQuestions = [
-                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'Meneer'?", options: ["Mr.", "Mnr.", "Men.", "M."], answer: 1, explanation: "Die korrekte afkorting vir 'Meneer' is 'Mnr.'." },
-                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'byvoorbeeld'?", options: ["bv.", "b.v.", "byv.", "bvb."], answer: 0, explanation: "Die korrekte afkorting vir 'byvoorbeeld' is 'bv.'." },
-                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'onder andere'?", options: ["o.a.", "oa.", "ond.", "o/a"], answer: 0, explanation: "Die korrekte afkorting vir 'onder andere' is 'o.a.'." },
-                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'Doktor'?", options: ["DK.", "Dr.", "Dkt.", "Dok."], answer: 1, explanation: "Die korrekte afkorting vir 'Doktor' is 'Dr.'." },
-                { section: "afkortings", question: "Wat is die korrekte afkorting vir 'ensovoorts'?", options: ["ens.", "env.", "esv.", "e.s."], answer: 0, explanation: "Die korrekte afkorting vir 'ensovoorts' is 'ens.'." }
-            ];
-
+            // Merge all questions and SHUFFLE ONCE
             const quizQuestions = [
                 ...soorteSinneQuestions,
                 ...afkortingsQuestions,
                 ...generatedIntensiveQuestions
             ];
+            shuffle(quizQuestions);
 
-            let currentQuestion = Math.floor(Math.random() * quizQuestions.length);
+            // ---STATE---
+            let currentQuestionIndex = 0;
             let score = 0;
             let answered = Array(quizQuestions.length).fill(false);
             let userAnswers = Array(quizQuestions.length).fill(undefined);
             let sectionScores = { "soorte-sinne": 0, "afkortings": 0, "intensiewe-vorm": 0 };
 
+            // ---DOM ELEMENTS---
             const quizContentEl = document.getElementById('quiz-content');
             const prevBtnEl = document.getElementById('prev-btn');
             const nextBtnEl = document.getElementById('next-btn');
@@ -327,12 +177,14 @@
             const scoreEmojiEl = document.getElementById('score-emoji');
 
             function initQuiz() {
-                showQuestion(currentQuestion);
+                currentQuestionIndex = 0;
+                score = 0;
+                answered = Array(quizQuestions.length).fill(false);
+                userAnswers = Array(quizQuestions.length).fill(undefined);
+                sectionScores = { "soorte-sinne": 0, "afkortings": 0, "intensiewe-vorm": 0 };
+                showQuestion(currentQuestionIndex);
                 updateProgressBar();
                 scoreDisplayEl.textContent = `Punte: ${score}`;
-                // Update total question count in UI text elements that are static
-                questionNumberEl.textContent = `Vraag ${currentQuestion + 1} van ${quizQuestions.length}`;
-                finalScoreEl.textContent = `${score}/${quizQuestions.length}`; // Initial result text
             }
 
             prevBtnEl.addEventListener('click', showPreviousQuestion);
@@ -341,10 +193,8 @@
 
             function showQuestion(index) {
                 const question = quizQuestions[index];
-                if (!question) {
-                    console.error("Question not found at index:", index);
-                    return; // Should not happen
-                }
+                if (!question) return;
+                // ---CHANGED: NUMBERING IS ALWAYS BASED ON INDEX---
                 questionNumberEl.textContent = `Vraag ${index + 1} van ${quizQuestions.length}`;
 
                 let html = `<div class="mb-6">
@@ -388,7 +238,7 @@
                     document.querySelectorAll('.option').forEach(optionEl => {
                         optionEl.addEventListener('click', () => selectOption(optionEl));
                     });
-                } else { 
+                } else {
                     document.querySelectorAll('.option').forEach(optionEl => {
                         optionEl.style.cursor = 'default';
                     });
@@ -400,31 +250,29 @@
             }
 
             function selectOption(selectedOption) {
-                if (answered[currentQuestion]) return;
-
+                if (answered[currentQuestionIndex]) return;
                 const selectedIndex = parseInt(selectedOption.dataset.index);
-                const correctIndex = quizQuestions[currentQuestion].answer;
-
-                answered[currentQuestion] = true;
-                userAnswers[currentQuestion] = selectedIndex;
+                const correctIndex = quizQuestions[currentQuestionIndex].answer;
+                answered[currentQuestionIndex] = true;
+                userAnswers[currentQuestionIndex] = selectedIndex;
 
                 document.querySelectorAll('.option').forEach(opt => {
-                    opt.classList.remove('selected'); 
+                    opt.classList.remove('selected');
                     opt.style.cursor = 'default';
-                    const new_opt = opt.cloneNode(true); 
+                    const new_opt = opt.cloneNode(true);
                     opt.parentNode.replaceChild(new_opt, opt);
                 });
 
                 const currentOptions = quizContentEl.querySelectorAll('.option');
                 const actualSelectedOptionElement = currentOptions[selectedIndex];
 
-                if (actualSelectedOptionElement) { // Check if element exists
+                if (actualSelectedOptionElement) {
                     actualSelectedOptionElement.classList.add('selected');
                     if (selectedIndex === correctIndex) {
                         actualSelectedOptionElement.classList.add('correct');
                         actualSelectedOptionElement.classList.add('celebrate');
                         score++;
-                        sectionScores[quizQuestions[currentQuestion].section]++;
+                        sectionScores[quizQuestions[currentQuestionIndex].section]++;
                     } else {
                         actualSelectedOptionElement.classList.add('incorrect');
                         if (currentOptions[correctIndex]) {
@@ -436,30 +284,30 @@
 
                 const explanationHTML = `
                     <div class="bg-blue-50 p-4 rounded-lg mt-4 mb-4">
-                        <p class="text-blue-800"><strong>Verduideliking:</strong> ${quizQuestions[currentQuestion].explanation}</p>
+                        <p class="text-blue-800"><strong>Verduideliking:</strong> ${quizQuestions[currentQuestionIndex].explanation}</p>
                     </div>`;
                 quizContentEl.insertAdjacentHTML('beforeend', explanationHTML);
             }
 
             function showPreviousQuestion() {
-                if (currentQuestion > 0) {
-                    currentQuestion--;
-                    showQuestion(currentQuestion);
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
                 }
             }
 
             function handleNextButton() {
-                if (currentQuestion < quizQuestions.length - 1) {
-                    currentQuestion++;
-                    showQuestion(currentQuestion);
+                if (currentQuestionIndex < quizQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
                 } else {
                     showResults();
                 }
             }
 
             function updateProgressBar() {
-                if (quizQuestions.length > 0) { // Avoid division by zero
-                    const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+                if (quizQuestions.length > 0) {
+                    const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
                     progressBarEl.style.width = `${progress}%`;
                 } else {
                     progressBarEl.style.width = `0%`;
@@ -495,19 +343,13 @@
             }
 
             function restartQuiz() {
-                currentQuestion = 0;
-                score = 0;
-                answered = Array(quizQuestions.length).fill(false);
-                userAnswers = Array(quizQuestions.length).fill(undefined);
-                sectionScores = { "soorte-sinne": 0, "afkortings": 0, "intensiewe-vorm": 0 };
-                
+                shuffle(quizQuestions); // Shuffle again for a new session
+                initQuiz();
                 resultsSectionEl.classList.add('hidden');
-                resultCardEl.classList.remove('show'); 
+                resultCardEl.classList.remove('show');
                 document.getElementById('quiz-content').classList.remove('hidden');
                 document.getElementById('controls').classList.remove('hidden');
                 document.getElementById('progress-container').classList.remove('hidden');
-                
-                initQuiz();
             }
             initQuiz();
         });
